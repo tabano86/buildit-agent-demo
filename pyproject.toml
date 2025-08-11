@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "qa-agent"
+name = "buildit-demo-agent"
 version = "0.1.0"
 description = "An AI agent for generating BDD test plans."
 authors = ["Your Name <you@example.com>"]
