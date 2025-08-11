@@ -7,10 +7,15 @@ services:
     depends_on:
       ollama:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       - OLLAMA_HOST=http://ollama:11434
       - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - REDIS_HOST=redis
     command: python -u agent.py
+    networks:
+      - agent-net
 
   ollama:
     build:
@@ -24,3 +29,27 @@ services:
       interval: 1s
       timeout: 10s
       retries: 15
+    networks:
+      - agent-net
+    volumes:
+      - ollama_data:/root/.ollama
+
+  redis:
+    image: "redis:alpine"
+    container_name: demo_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge
+
+volumes:
+  ollama_data:
