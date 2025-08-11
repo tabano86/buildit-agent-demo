@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "qa-agent"
+version = "0.1.0"
+description = "An AI agent for generating BDD test plans."
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+ollama = "^0.2.0"
+rich = "^13.7.1"
+tenacity = "^8.2.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

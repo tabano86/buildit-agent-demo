@@ -1,0 +1,38 @@
+# IDE
+.idea/
+*.iml
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.cache/
+
+# Virtual environments (including Poetry in-project)
+.venv/
+venv/
+
+# Environment and tooling
+.env
+.env.*
+.python-version
+
+# Packaging and build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+/.idea/

@@ -1,0 +1,26 @@
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: agent.Dockerfile
+    container_name: demo_agent
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL}
+    command: python -u agent.py
+
+  ollama:
+    build:
+      context: .
+      dockerfile: ollama.Dockerfile
+    container_name: demo_ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 1s
+      timeout: 10s
+      retries: 15
