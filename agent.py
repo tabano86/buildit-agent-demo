@@ -23,42 +23,66 @@ log = structlog.get_logger()
 MODEL = os.getenv("OLLAMA_MODEL", "phi3:mini")
 USER_STORY = "As a user, I want to log in with my email and password so I can access my account."
 SYSTEM_PROMPT = """
-You are an elite QA Engineer. Your task is to generate a complete BDD feature file in Gherkin syntax based on a user story.
+You are an elite QA Engineer. Your task is to generate a **complete, thorough BDD feature file** in **Gherkin syntax** based on a user story.
 
-The output MUST be a single Markdown code block containing the Gherkin text.
-It MUST include scenarios for the "happy path," "negative paths," and critical "security/edge cases."
-Use Gherkin keywords (`Feature`, `Scenario`, `Given`, `When`, `Then`, `And`) correctly.
-Tag scenarios with appropriate labels like `@happy-path`, `@negative-path`, `@security`.
+**STRICT OUTPUT RULES:**
+- Output MUST be a **single fenced Markdown code block** starting with ```gherkin and ending with ```.
+- The feature file must reflect **all realistic behaviors and cases** implied by the user story — include as many scenarios as are needed to cover real-world usage.
+- Use **only** Gherkin keywords: `Feature`, `Scenario`, `Given`, `When`, `Then`, `And`.
+- The **Feature** description should be 1–2 clear sentences summarizing the capability.
+- Include:
+  - **All relevant happy path scenarios** (not just one)
+  - **All relevant negative path scenarios** (validation failures, system errors, user mistakes)
+  - **All critical security scenarios** (abuse prevention, data protection, permission issues)
+  - **All relevant edge cases** (uncommon but possible conditions)
+- Tag each scenario appropriately with `@happy-path`, `@negative-path`, `@security`, `@edge-case` (multiple tags if applicable).
+- Scenario titles must be **short and specific**. No storytelling — focus on behavior.
+- Steps should be **precise, reproducible, and testable**, without redundant words or over-explaining.
+- If a scenario requires multiple variations (e.g., different invalid inputs), create **separate scenarios** for each — do not merge them into one.
+- There is **no maximum** scenario count — include as many as needed to cover realistic cases in production.
 
-Here is an example of the required format to guide the AI (this is a "one-shot" learning example):
-
+**EXAMPLE STYLE:**
 ```gherkin
 Feature: User Authentication
-  As a user, I want to log in with my credentials to access my account securely.
+  As a user, I want to log in with my credentials so that I can securely access my account.
 
   @happy-path
-  Scenario: Successful login with valid credentials
-    Given the user is on the login page
-    And the user enters a valid email and password
-    When the user clicks the "Login" button
-    Then the user should be redirected to their account dashboard
-    And a success message "Welcome back!" should be displayed
-
-  @negative-path
-  Scenario: Unsuccessful login with an invalid password
+  Scenario: Login with valid email and password
     Given the user is on the login page
     And the user enters a valid email
-    And the user enters an invalid password
-    When the user clicks the "Login" button
-    Then the user should remain on the login page
-    And an error message "Invalid credentials. Please try again." should be displayed
+    And the user enters a valid password
+    When the user clicks "Login"
+    Then the account dashboard is displayed
+    And a welcome message is shown
+
+  @negative-path
+  Scenario: Login fails with invalid password
+    Given the user is on the login page
+    And the user enters a valid email
+    And an invalid password
+    When the user clicks "Login"
+    Then an "Invalid credentials" error is displayed
+
+  @negative-path
+  Scenario: Login fails with unregistered email
+    Given the user is on the login page
+    And the user enters an unregistered email
+    And a valid password
+    When the user clicks "Login"
+    Then an "Account not found" error is displayed
 
   @security @edge-case
-  Scenario: Attempted login with a locked account
-    Given a user's account has been locked due to multiple failed login attempts
-    And the user is on the login page
-    When the user enters the correct credentials for the locked account
-    Then an error message "Your account is locked. Please contact support." should be displayed
+  Scenario: Login blocked for locked account
+    Given the user's account is locked after failed attempts
+    When the user enters correct credentials
+    Then a "Your account is locked" error is displayed
+
+  @security
+  Scenario: Login blocked after multiple rapid failed attempts
+    Given the user fails login 5 times within 1 minute
+    When they attempt another login
+    Then a "Too many attempts" error is displayed
+    And login is disabled for 15 minutes
 ```
 """
 
